@@ -1,6 +1,6 @@
 ---
 name: develop
-description: Use when starting any non-trivial coding feature or bugfix and you want it built right - runs Episteme's epistemic loop so "done" is proven against a contract, not declared. Two tracks: Quick (straight to the loop) and Full (brief -> PRD -> architecture -> stories, then the loop per story).
+description: Use when starting any non-trivial coding feature, bugfix, or legacy migration and you want it built right - runs Episteme's epistemic loop so "done" is proven against a contract, not declared. Tracks: Micro (trivial change), Quick (straight to the loop), Full (brief -> PRD -> architecture -> stories), Migration (excavate -> adjudicate parity -> slices, equivalence-verified).
 ---
 
 # Develop - the Episteme orchestrator
@@ -10,7 +10,8 @@ description: Use when starting any non-trivial coding feature or bugfix and you 
 The happy-path orchestrator. It runs the epistemic loop end to end by invoking the
 voice skills in order and keeping their artifacts coherent in `.episteme/`. Each
 voice is also a standalone skill; `develop` is what you use when you want the whole
-disciplined flow. It offers two tracks (see below) that share the same per-story loop.
+disciplined flow. It offers four graduated tracks (see below); Quick, Full and
+Migration share the same per-story loop.
 
 **Core principle:** "done" is proven against a contract by a cheap oracle and an
 independent critic, never declared by the implementer.
@@ -40,7 +41,16 @@ Single source of truth for where artifacts live - every voice agrees on it.
 | `.episteme/epics.md` | sharding-into-stories | FR inventory -> epics -> stories + an FR coverage map |
 | `.episteme/stories/<story-id>.md` | writing-a-story | one ready-for-dev story (flat id `story-NN`) |
 
-Create `.episteme/` (and `.episteme/stories/`) at the start if missing.
+**Migration-track artifacts (legacy rewrites only):**
+
+| File | Owner voice | What it is |
+|---|---|---|
+| `.episteme/behavior-inventory.md` | excavating-behavior | the capability map exhumed from the legacy system; every row authority-tagged |
+| `.episteme/captures/<CAP-id>/` | excavating-behavior | raw golden masters per capability (recorded inputs/outputs, snapshots, replay recipes) |
+| `.episteme/parity-map.md` | adjudicating-parity | per-capability decisions (retire/retain/as-is/fix/repurchase) + quirk adjudications + slice plan |
+| `.episteme/corpus/<slice-id>/` | writing-the-contract (assembled at slice-contract time) | the slice's replay corpus + manifest (content-hashed; the equivalence oracle) |
+
+Create `.episteme/` (and the subdirs you need) at the start if missing.
 
 ## The Iron Law
 
@@ -51,16 +61,27 @@ NO "DONE" WITHOUT ALL THREE:
   3. ledger-check ran clean on .episteme/ledger.jsonl (curator).
 Miss any one and the feature is NOT done - say so plainly.
 ```
-(Spike stories are the one exception - see "Spike stories" below.)
+(Spike stories and the Micro track are the exceptions - their gates are a verified
+ledger finding + clean ledger-check, and the existing suite green + a curated
+finding, respectively.)
 
-## Tracks
+## Tracks (graduated - use the lightest one that fits)
 
+- **Micro track** (a trivial change: typo, rename, config bump, one-line fix with an
+  obvious existing oracle): predict -> make the one change -> run the existing suite ->
+  curate one ledger finding. No contract file, no policy, no critic. If the suite
+  shows ANY unexpected behavior change, escalate to Quick. Micro is for changes where
+  an oracle already exists and no new behavior is intended - it is NOT a loophole for
+  feature work.
 - **Quick track** (default; mini-apps, internal tools, a single feature): skip
   planning, go straight to the per-story loop on one `contract.md`.
 - **Full track** (greenfield, large features, multiple stories): run the planning
   phases first, then run the per-story loop once per story.
+- **Migration track** (legacy rewrites, e.g. a VB6 app to a modern web stack): the
+  code precedes the intent - excavate behavior first, then adjudicate, then migrate
+  slice by slice with equivalence oracles. See "Migration track" below.
 
-Choose Quick unless the work needs shared planning across several stories.
+Choose the lightest track that fits; ceremony that does not buy verification is waste.
 
 ## Full track - planning phases (run once, before any code)
 
@@ -79,6 +100,65 @@ E. PER STORY     -> writing-the-contract (story ACs -> contract w/ oracles) -> T
 
 Order stories so spikes and dependencies come first. Then run the loop for each
 story in turn; the ledger and architecture carry context across stories.
+
+## Migration track - phases (legacy rewrites; the code IS the intent)
+
+Greenfield assumes intent precedes code; migration inverts it. Do NOT write a brief
+or PRD for a migration - excavate and adjudicate instead:
+
+```
+M-A. EXCAVATE     -> excavating-behavior    -> .episteme/behavior-inventory.md + captures/
+                     (capture from the RUNNING system = verified; read-from-code = assumed)
+M-B. ADJUDICATE   -> adjudicating-parity    -> .episteme/parity-map.md
+                     (parity is the null hypothesis: retire/retain/as-is/fix/repurchase
+                      per capability; every quirk gets a HUMAN preserve-or-fix decision)
+M-C. ARCHITECTURE -> deciding-architecture  -> .episteme/architecture.md (brownfield:
+                     the target stack + the seams; confidence tiers as usual)
+M-D. SLICES       -> sharding-into-stories  -> .episteme/epics.md (input = the parity
+                     map's value-stream slices, not PRD FRs; strangler-fig order,
+                     capture-first spikes before slices that rest on `assumed` behavior)
+M-E. PER SLICE    -> writing-the-contract (criteria = "output-equivalent to legacy on
+                     the captured corpus"; the oracle IS the corpus replay - captured
+                     from legacy, blind to the new code) -> THE LOOP, with
+                     verifying-equivalence in place of verifying-against-contract ->
+                     cutover gate (corpus green + corpus integrity + clean parallel-run
+                     window + reversible cutover + critic approve - five conditions) ->
+                     decommission the slice.
+```
+
+The blindness direction flips in migration: greenfield authors oracles blind to the
+implementation; migration captures oracles from the legacy system, blind to the NEW
+implementation. Expected outputs NEVER come from the new code. Authoring the slice
+contract ASSEMBLES the corpus: the relevant `.episteme/captures/<CAP-id>/` entries
+are composed into `.episteme/corpus/<slice-id>/` with a content-hashed manifest; from
+then on the corpus is read-only (verifying-equivalence checks the hash).
+
+## Contract renegotiation (two-way, cheap by design)
+
+When implementation falsifies a contract assumption - an AC is wrong, unreachable as
+written, or the design underneath it was disproven - do NOT grind against the gate
+and do NOT silently edit the contract:
+
+1. Invoke `writing-the-contract` in AMEND mode: bump `version`, change ONLY the
+   affected criterion, re-author its oracle (blind, watch it fail again).
+2. The curator records a `contract_version` entry citing what was falsified and by
+   which verdict/finding.
+3. The critic treats an amended contract as the new truth; it flags only UNRECORDED
+   drift (work that diverges from the contract with no amendment trail).
+
+Amending one criterion is a small step, not a restart. A gate you cannot cheaply
+renegotiate gets bypassed in practice - this path exists so the gate stays honest.
+
+## Oracle integrity (anti-tamper)
+
+- Oracle/test files authored for the contract are IMMUTABLE to the implementer. If
+  an oracle seems wrong, that is a contract renegotiation (above), never an edit.
+- The verifier checks oracle files are unchanged since authoring (diff against the
+  contract version) before trusting a green run; an edited oracle, a monkeypatched
+  exit, or a skipped test is TAMPERING -> verdict `mismatch` + the event goes to the
+  ledger and the critic.
+- In the Migration track, the corpus manifest's content hash is this same check for
+  golden masters.
 
 ## The per-story loop
 
@@ -132,7 +212,9 @@ before the stories that depend on them, so dependents start from a `verified` fi
 - `progress_delta` moves only when a contract oracle flips red->green (+1) or
   green->red (-1). Several turns at `progress_delta: 0` -> stop and re-synthesize the
   policy (the approach may be unreachable - see the policy's reachability audit).
-- Never skip the contract "because it's simple." A one-criterion contract is still the contract.
+- Never skip the contract "because it's simple" on feature work. A one-criterion
+  contract is still the contract. (Trivial no-new-behavior changes belong to the
+  Micro track, which leans on the EXISTING suite as its oracle.)
 - The curator is the only writer of `.episteme/ledger.jsonl`; everyone else reads it.
 
 ## Red flags - STOP
@@ -142,7 +224,9 @@ before the stories that depend on them, so dependents start from a `verified` fi
 - Claiming "done" without the critic's `approve` and a clean ledger-check.
 - Editing beyond what the active criterion needs (the critic will flag drift).
 - Treating an `assumed` ledger entry as if it were `verified`.
-- Running the Full track for a one-file mini-app (use Quick).
+- Running the Full track for a one-file mini-app (use Quick), or Quick for a typo (use Micro).
+- The implementer editing an oracle/test file instead of renegotiating the contract.
+- Writing a brief/PRD for a legacy migration (use the Migration track - excavate, don't invent intent).
 
 ## Standalone use
 

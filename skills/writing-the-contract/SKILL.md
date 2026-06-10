@@ -42,6 +42,8 @@ This is the whole point of the skill.
 
 You are wearing the oracle-author hat in this skill. Author the oracle from what the feature *must do*, never from how it *will be done*. If no implementation exists yet, this is automatic. If you are retrofitting a contract onto existing code, you must author the oracle from the contract statement and resist reading the code to shape the assertion.
 
+Once authored and seen RED, oracle files are **immutable to the implementer**. The only legitimate way to change one is the amendment path below ("Amending the contract") - never a direct edit.
+
 > The post-diff **critic** (`adversarial-critic`) is a *separate, later* check and is NOT this separation. The blind separation lives here: oracle-author vs implementer.
 
 ## When to Use
@@ -69,6 +71,7 @@ Prefer the cheapest deterministic gate that actually proves the criterion. Reach
 | Style / forbidden pattern | **lint** / `grep` (`eslint`, `rg 'TODO' src/`) |
 | It builds / compiles | the **build** (`npm run build`, exit 0) |
 | An HTTP/CLI surface | a **command** asserting status/output (`curl -s ... | jq -e '.ok'`) |
+| Migration equivalence ("output-equivalent to legacy on corpus <slice-id>") | the **corpus replay** (the manifest's `replay_command`; see "Migration contracts" below) |
 | Subjective UX, copy, "feels right" | a documented **manual/LLM check** - mark `oracle: manual:` and say exactly what to look at |
 
 Each oracle must be **specific** (names the exact test/case/command, not "the test suite") and **runnable as written**.
@@ -133,6 +136,37 @@ Unfalsifiable ("work well"); oracle is the whole suite, not a case; marked green
 
 Use `templates/contract.md`. Sections: frontmatter (`id`, `version`, `status`, `stories`); **Acceptance criteria** (each: id, statement, `oracle:`, `status: red|green`); **Interfaces / surface**; **Error taxonomy**; **Out of scope**. The Out of scope section is load-bearing: it is what the adversarial critic uses to reject scope drift later.
 
+## Amending the contract (two-way renegotiation)
+
+The gate is two-way. When implementation falsifies a criterion - it is wrong,
+unreachable as written, or the design assumption underneath it was disproven by a
+verdict/finding - do NOT grind against it and do NOT silently edit it. Amend:
+
+1. Bump `version` in the frontmatter.
+2. Change ONLY the affected criterion.
+3. Re-author its oracle blind and **watch it fail (RED) again** - an amended
+   criterion re-enters at the same gate as a new one.
+4. Hand the change to `curating-the-ledger` for a `contract_version` entry citing
+   what was falsified and by which verdict.
+
+Amending one criterion is a small step, not a restart. A gate you cannot cheaply
+renegotiate gets bypassed in practice - this path exists so the gate stays honest.
+
+## Migration contracts (equivalence criteria)
+
+In the Migration track the criteria read **"output-equivalent to legacy on corpus
+<slice-id>"**, and the oracle is the **corpus replay**: recorded legacy inputs
+replayed against the new code, compared to the captured legacy outputs. The capture
+is made FROM the legacy system, blind to the new code - the blindness direction
+flips (greenfield authors oracles blind to the implementation; migration captures
+them blind to the NEW implementation). Authoring the contract ASSEMBLES the corpus:
+compose the relevant `.episteme/captures/<CAP-id>/` entries into
+`.episteme/corpus/<slice-id>/` and write its manifest (content-hashed; see
+`templates/corpus-manifest.md`). From then on the corpus is read-only -
+`verifying-equivalence` checks the hash every replay. Adjudicated `par-NNNN`
+overrides from `.episteme/parity-map.md` are the ONLY legitimate expected-output
+divergences from the capture.
+
 ## Common Mistakes
 
 | Mistake | Fix |
@@ -154,6 +188,7 @@ Use `templates/contract.md`. Sections: frontmatter (`id`, `version`, `status`, `
 - An oracle that says "the test suite passes" instead of a specific case
 - Phrases like "should work", "be robust", "handle errors gracefully" as an AC
 - No "Out of scope" section
+- Editing a criterion without bumping the version and re-failing its oracle - that is silent drift, not an amendment
 
 **All of these mean: stop, author/run the oracle blind, and watch it go RED before continuing.**
 

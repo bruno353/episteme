@@ -98,6 +98,13 @@ rejection.
   steps that assumes state it has not observed). Architecture means the change is
   *structurally* sound, not just that it passed today.
 
+### Migration track addendum
+
+In a migration slice the critic also audits against `.episteme/parity-map.md`:
+adjudicated constraints honoured (preserved quirks reproduced; `par-NNNN` fixes
+implemented as recorded), unadjudicated divergences routed to adjudication - never
+silently blessed - and, at the cutover gate, the gate's five conditions actually met.
+
 ## Discipline (the doctrine transferred from wmv2)
 
 These are non-negotiable. They are why the critic is trusted instead of feared.

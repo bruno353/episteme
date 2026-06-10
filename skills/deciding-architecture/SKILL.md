@@ -157,7 +157,9 @@ was decided. **Do not look ahead** - each step appends only its own section.
 - Read `.episteme/prd.md` **fully** (all FRs, the assumptions index, the
   glossary). If there is no PRD, stop: "Architecture needs a PRD. Run
   `writing-a-prd` first." Architecture decisions made without the PRD's forces are
-  guesses.
+  guesses. **Migration track exception:** there is no PRD - read
+  `.episteme/parity-map.md` + `.episteme/behavior-inventory.md` as the forces
+  source (capabilities to migrate, coupling facts, slice plan) and proceed.
 - If `.episteme/architecture.md` does not exist, copy `templates/architecture.md`
   to it. Fill `prd_source` (which PRD/version) and `date`.
 - If it **does** exist with `stepsCompleted`, you are resuming: read the whole
@@ -311,7 +313,8 @@ section, plus a superseding ledger entry), do not edit the old one.
 - Editing or deleting an earlier decision instead of superseding it.
 - Writing the ledger by hand instead of via `curating-the-ledger`.
 - A "constraint" that is a vibe ("keep it clean") instead of a checkable rule.
-- Starting architecture with no `.episteme/prd.md`.
+- Starting architecture with no `.episteme/prd.md` (Full track) - or, on the
+  Migration track, with no parity map + behavior inventory.
 - Re-running a completed step / rewriting a section on resume.
 - A tech-version or library-capability claim asserted without checking.
 

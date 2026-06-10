@@ -59,23 +59,29 @@ BEFORE emitting any verdict:
 1. IDENTIFY the oracle: which command in .episteme/contract.md AC-N proves this criterion?
    - No oracle named for this criterion? -> verdict kind = "noop",
      flag the contract gap, do NOT invent a pass. Stop.
-2. RUN it FRESH, in full, this turn. Capture exit code + the failure/pass count.
-3. RECORD the oracle outcome as a FACT (ORACLE_PASSED / ORACLE_FAILED).
-4. COMPARE oracle outcome against the implementer's prediction.
+2. CHECK ORACLE INTEGRITY before trusting any green: confirm the oracle/test files
+   are unchanged since contract authoring (`git diff` against the contract's version;
+   in the Migration track, the corpus manifest's content hash). An edited oracle, a
+   monkeypatched/skipped test, or an exit-code escape is TAMPERING ->
+   verdict kind = "mismatch", reason naming the tampering. Never "passed".
+3. RUN it FRESH, in full, this turn. Capture exit code + the failure/pass count.
+4. RECORD the oracle outcome as a FACT (ORACLE_PASSED / ORACLE_FAILED).
+5. COMPARE oracle outcome against the implementer's prediction.
    - Match     -> no mismatch flag.
    - No match  -> flag PREDICTION_MISMATCH (the agent did not understand the change).
-5. CHECK regression: did any criterion that was green before now go red?
+6. CHECK regression: did any criterion that was green before now go red?
    - Yes -> flag REGRESSION (this is a fact even if the targeted oracle passed).
-6. CHECK loop: is this the same change / same red oracle state we already saw?
+7. CHECK loop: is this the same change / same red oracle state we already saw?
    - Yes -> flag STATE_REVISITED.
-7. SET progress_delta from the CONTRACT ORACLE STATE ONLY:
+8. SET progress_delta from the CONTRACT ORACLE STATE ONLY:
    - +1  a contract criterion's oracle flipped red -> green this turn.
    - -1  a contract criterion's oracle that was green regressed to red.
    -  0  everything else (including: oracle passed but it was already green;
          a non-contract test changed; the prediction matched but no criterion flipped).
-8. WRITE .episteme/verdict.json. Hand off (see Cadence).
+9. WRITE .episteme/verdict.json. Hand off (see Cadence).
 
-Skipping step 2 (fresh run) or step 4 (compare) = you are not verifying, you are guessing.
+Skipping step 2 (integrity), step 3 (fresh run) or step 5 (compare) = you are not
+verifying, you are guessing.
 ```
 
 ## The Verdict (the only thing you produce)
@@ -147,6 +153,7 @@ Concretely:
 ## Red Flags - STOP
 
 - Writing `passed` without having run the oracle fresh **this turn**.
+- Trusting a green run without confirming the oracle files are unchanged since contract authoring (an edited oracle / skipped test / exit-code escape is tampering -> `mismatch`).
 - Writing `passed` for a green that the implementer did not predict (-> `mismatch`).
 - Moving `progress_delta` because "the prediction matched" (only the oracle moves it).
 - Moving `progress_delta` for a non-contract test, or for an oracle that was already green.
@@ -166,6 +173,7 @@ Concretely:
 | "This is a `mismatch` but the code is clearly fine" | Then the *critic* will approve it. Your job is the fact: prediction did not match. |
 | "No oracle for this AC, but it obviously works" | `noop` + flag the contract gap. You verify oracles, you do not assert beliefs. |
 | "A helper test passed, +1 progress" | Only *contract* criteria move `progress_delta`. |
+| "The test was wrong anyway" | Then the contract gets amended and the oracle re-fails first - you don't edit it after the fact. |
 
 ## Cadence and handoff
 

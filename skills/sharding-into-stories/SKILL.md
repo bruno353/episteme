@@ -65,6 +65,11 @@ is scope you invented (or a missing trace). The coverage map makes both visible 
 the cheap deterministic oracle of this phase (Pillar 4): a checkable closure proof, not
 an opinion that "we covered everything."
 
+**Migration track:** the requirement inventory is the parity map's `migrate-*`
+capabilities (`CAP-NN`) grouped by its value-stream slices; the coverage map proves
+every `migrate-*` capability maps to >=1 story; capture-first spikes come first. The
+PRD-FR rule applies to the Full track.
+
 ## Inputs and output
 
 **Read (do not skip any):**

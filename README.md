@@ -60,14 +60,21 @@ with itself - see [Status](#status)).
 
 Invoke the orchestrator for any real feature:
 
-- **`episteme:develop`** picks a track:
+- **`episteme:develop`** picks the lightest track that fits:
+  - **Micro** (typo / config / one-liner): predict, change, run the existing suite. No ceremony.
   - **Quick** (mini-app / single feature): straight to the loop on one `contract.md`.
   - **Full** (greenfield / large): `brief -> PRD -> architecture -> stories`, then the loop per story.
+  - **Migration** (legacy rewrite, e.g. VB6 -> a modern web stack): excavate behavior
+    from the running system -> adjudicate parity (per capability: retire,
+    retain-on-legacy, migrate-as-is, migrate-and-fix, or repurchase; per quirk:
+    preserve or fix) -> migrate slice by slice, each verified by replaying a captured
+    corpus (the legacy behavior IS the contract; expected outputs never come from the
+    new code).
 
 Or invoke any single voice directly (e.g. `episteme:adversarial-critic` to audit an
 existing diff against a contract). All runtime artifacts live in `.episteme/`.
 
-## The skills (14)
+## The skills (17)
 
 - **Orchestrator:** `develop` ; **Bootstrap:** `using-episteme`
 - **The loop's voices:** `writing-the-contract`, `synthesizing-the-policy`,
@@ -75,6 +82,8 @@ existing diff against a contract). All runtime artifacts live in `.episteme/`.
   `curating-the-ledger`
 - **Full-track lifecycle:** `writing-a-brief`, `writing-a-prd`,
   `deciding-architecture`, `sharding-into-stories`, `writing-a-story`
+- **Migration track** (legacy rewrites): `excavating-behavior`,
+  `adjudicating-parity`, `verifying-equivalence`
 - **Meta:** `writing-episteme-skills` (how to author new skills that fit the loop)
 
 ## The tools (deterministic oracles)

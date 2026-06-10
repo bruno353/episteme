@@ -13,13 +13,24 @@ Episteme is an epistemic control layer for coding. Its one rule:
 ## When to use it
 
 - **Building a feature or bugfix of any real substance** -> invoke `develop`
-  (the orchestrator). It picks a track: **Quick** (a mini-app / single feature) goes
-  straight to the loop (contract -> policy -> implement <-> verify -> critic ->
-  curate); **Full** (greenfield / large) runs the lifecycle first (brief -> PRD ->
-  architecture -> stories) then the loop per story. Artifacts live in `.episteme/`.
+  (the orchestrator). It picks one of four tracks: **Micro** (typo / config /
+  one-liner: predict, change, run the existing suite, curate one finding);
+  **Quick** (a mini-app / single feature) goes straight to the loop (contract ->
+  policy -> implement <-> verify -> critic -> curate); **Full** (greenfield /
+  large) runs the lifecycle first (brief -> PRD -> architecture -> stories) then
+  the loop per story; **Migration** (legacy rewrite) excavates, adjudicates
+  parity, and migrates slice by slice (next bullet). Artifacts live in
+  `.episteme/`.
 - **The Full-track lifecycle skills** (driven by `develop`, also invocable alone):
   `writing-a-brief`, `writing-a-prd`, `deciding-architecture`,
   `sharding-into-stories`, `writing-a-story`.
+- **The Migration track** (legacy rewrites - e.g. VB6 to a modern web stack):
+  `excavating-behavior` (capture what the running system actually does),
+  `adjudicating-parity` (per capability: retire, retain-on-legacy, migrate-as-is,
+  migrate-and-fix, or repurchase; per quirk: preserve or fix; parity is the null
+  hypothesis),
+  `verifying-equivalence` (corpus replay + parallel run + cutover gate). `develop`
+  sequences them; expected outputs come from the legacy capture, never the new code.
 - **You need just one step** -> invoke that voice directly:
   - `writing-the-contract` - turn a vague ask into a verifiable contract (each
     acceptance criterion paired with a cheap oracle, authored before the code).

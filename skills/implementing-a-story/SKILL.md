@@ -131,6 +131,10 @@ non-negotiable:
   its two callers), that is still ONE change *iff* it is a single indivisible step
   toward one criterion. The test: could a verdict attribute a failure unambiguously to
   this change? If two unrelated behaviors moved, you batched - split it.
+- You NEVER edit an oracle/test file paired with a contract criterion. If the oracle
+  seems wrong, that is a signal the CONTRACT needs renegotiation - invoke
+  `writing-the-contract`'s amend path. Editing the test to make it pass is tampering,
+  and the verifier checks oracle integrity and will flag it.
 
 <Good>
 Criterion AC-3 needs expired-token rejection. You add the expiry check in
@@ -230,6 +234,7 @@ Field rules:
 - Your invariant contains "should", "correctly", "properly", "works", "handles it"
 - You are repeating an edit the verdict already returned `noop`/`failed`/`STATE_REVISITED` on
 - You are building on a ledger entry tagged `assumed` as if it were `verified`
+- About to edit an oracle/test file paired with a contract criterion (renegotiate the contract instead - the verifier will flag the tampering)
 - You can't say what the oracle will show - and you're about to type code anyway
 
 All of these mean: stop, fix the input or the prediction, restart the turn.
