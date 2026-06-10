@@ -1,0 +1,16 @@
+{
+  "turn_index": 1,
+  "contract_id": "contract-policy-check",
+  "kind": "passed",
+  "reason": "All 5 contract oracles met their expected exit codes (AC-1/AC-5 exit 0; AC-2/AC-3/AC-4 exit 1). The readiness gate correctly rejects a 'ready' policy resting on the 'assumed' entry led-0008 across both candidate_steps and recommended_next_action. The implementer predicted these exact flips - no mismatch.",
+  "invalidates_hypothesis": false,
+  "progress_delta": 5,
+  "criteria": [
+    { "id": "AC-1", "expected_exit": 0, "actual_exit": 0, "satisfied": true },
+    { "id": "AC-2", "expected_exit": 1, "actual_exit": 1, "satisfied": true },
+    { "id": "AC-3", "expected_exit": 1, "actual_exit": 1, "satisfied": true },
+    { "id": "AC-4", "expected_exit": 1, "actual_exit": 1, "satisfied": true },
+    { "id": "AC-5", "expected_exit": 0, "actual_exit": 0, "satisfied": true }
+  ],
+  "flags": ["ORACLE_PASSED"]
+}

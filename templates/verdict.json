@@ -1,0 +1,27 @@
+{
+  "_template": "verdict.json - emitted by the episteme:verifying-against-contract skill (Voice 2, the Verifier), one per implementer turn. The values below are a worked example (the 'green nobody predicted' case): the oracle passed but the implementer did not predict it, so kind=mismatch even though progress_delta=+1. Replace the values; keep the field meaning. Remove the _field_docs block in real output, or keep it - it is ignored by consumers.",
+
+  "turn_index": 7,
+  "contract_id": "contract-auth",
+  "criterion_id": "AC-2",
+  "oracle": "npm test -- auth.spec.ts::rejects-expired-token",
+
+  "kind": "mismatch",
+  "reason": "oracle passed (1 passed, exit 0) but implementer predicted it would still fail because the refresh path was untouched - the green is unexplained",
+  "invalidates_hypothesis": true,
+  "progress_delta": 1,
+  "flags": ["ORACLE_PASSED", "PREDICTION_MISMATCH"],
+
+  "_field_docs": {
+    "turn_index": "Loop turn this verdict belongs to (freshness). Matches the implementer's turn.",
+    "contract_id": "The contract.md this criterion lives in, e.g. 'contract-auth'.",
+    "criterion_id": "The acceptance criterion under test this turn, e.g. 'AC-2'. null only if the change targeted no contract criterion.",
+    "oracle": "The exact cheap-oracle command that was RUN FRESH this turn (test/type/lint/build). null when the criterion has no oracle (then kind=noop and the contract gap is flagged).",
+
+    "kind": "FACT label, one of: passed | failed | mismatch | noop | regression. NEVER a quality judgment. 'passed' requires BOTH a green oracle AND a matched prediction; an unpredicted green is 'mismatch'. 'failed' = oracle did not pass. 'noop' = no oracle-state change (or no oracle exists). 'regression' = a previously-green contract criterion is now red.",
+    "reason": "One sentence citing the concrete oracle output (counts + exit code) and the prediction comparison. No 'should'/'seems'/quality words.",
+    "invalidates_hypothesis": "true when the oracle outcome falsifies what the implementer believed (a mismatch, or a failure the implementer predicted as a pass). The loop retires that hypothesis instead of retrying it. A predicted red in a red-green cycle is NOT invalidating.",
+    "progress_delta": "Integer, CONTRACT-ORACLE STATE ONLY. +1 when a contract criterion's oracle flips red->green this turn; -1 when a green one regresses to red; 0 otherwise. NEVER moved by 'the prediction matched', by a non-contract test, by an already-green oracle, or by effort.",
+    "flags": "Orthogonal facts that stack, independent of kind: ORACLE_PASSED, ORACLE_FAILED, PREDICTION_MISMATCH, REGRESSION, STATE_REVISITED. ORACLE_PASSED + PREDICTION_MISMATCH is the canonical 'green you did not understand' (kind=mismatch)."
+  }
+}

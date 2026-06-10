@@ -1,0 +1,48 @@
+{
+  "feature": "contract-auth",
+  "created_at_turn": 20,
+  "status": "ready",
+  "readiness_rationale": "Ready: every step rests on a verified ledger entry. AC-1 rests on the verified argon2 finding (led-0009) and the verified token-design decision (led-0007); the happy-path token round-trip is already green. No step rests on an assumed or absent id, so the readiness gate is satisfied.",
+  "evidence_audit": {
+    "grounded": [
+      "led-0009 (verified, grep src/users): UserService already hashes with argon2 - AC-1 oracle is reachable by wiring the existing hasher.",
+      "led-0007 (verified, npm test auth.spec.ts green): short-lived JWT + refresh chosen and a happy-path token round-trips."
+    ],
+    "tentative": [],
+    "unknown": [],
+    "blocking_uncertainties": []
+  },
+  "reachability_audit": {
+    "target_reachable": true,
+    "blocked_components": [],
+    "missing_capability": null
+  },
+  "candidate_steps": [
+    {
+      "action": "Wire the existing argon2 hasher into the user registration path so AC-1 passes.",
+      "expected_effect": "AC-1 oracle flips red->green; the happy-path token oracle stays green.",
+      "rests_on": ["led-0009"],
+      "stop_or_remeasure_if": [
+        "AC-1 oracle stays red after wiring",
+        "the happy-path token oracle regresses"
+      ]
+    },
+    {
+      "action": "Confirm the short-lived JWT + refresh token round-trips through the new registration path.",
+      "expected_effect": "Happy-path token oracle stays green.",
+      "rests_on": ["led-0007", "led-0009"],
+      "stop_or_remeasure_if": [
+        "the happy-path token oracle regresses"
+      ]
+    }
+  ],
+  "recommended_next_action": {
+    "action": "Wire the existing argon2 hasher into the registration path and re-run the AC-1 oracle.",
+    "why": "Verified-backed change (led-0009) that flips AC-1 green without disturbing any other oracle.",
+    "rests_on": ["led-0009"],
+    "stop_or_remeasure_if": [
+      "any green oracle regresses"
+    ]
+  },
+  "confidence": "high"
+}

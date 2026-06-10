@@ -1,0 +1,8 @@
+{
+  "name": "episteme",
+  "version": "0.1.0",
+  "description": "Epistemic control layer for agentic software development: contract + typed ledger + gated policy + factual verifier + adversarial critic, woven into one mandatory loop.",
+  "author": { "name": "Bruno Santos" },
+  "license": "MIT",
+  "keywords": ["agentic", "spec-driven", "tdd", "epistemic", "contract", "ledger", "skills"]
+}

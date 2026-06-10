@@ -1,0 +1,11 @@
+{
+  "turn_index": 3,
+  "contract_id": "contract-verdict-check",
+  "criterion_id": "AC-2",
+  "oracle": "python3 tools/verdict-check.py tools/fixtures/verdict_missing_kind.json",
+
+  "reason": "this verdict deliberately omits the required kind field so the validator must reject it",
+  "invalidates_hypothesis": false,
+  "progress_delta": 0,
+  "flags": ["ORACLE_FAILED"]
+}

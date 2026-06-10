@@ -1,0 +1,12 @@
+{
+  "turn_index": 3,
+  "contract_id": "contract-verdict-check",
+  "criterion_id": "AC-3",
+  "oracle": "python3 tools/verdict-check.py tools/fixtures/verdict_bad_kind.json",
+
+  "kind": "done",
+  "reason": "this verdict uses an illegal kind value (done) outside the allowed enum passed|failed|mismatch|noop|regression",
+  "invalidates_hypothesis": false,
+  "progress_delta": 0,
+  "flags": ["ORACLE_FAILED"]
+}

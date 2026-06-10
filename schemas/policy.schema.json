@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://episteme.dev/schemas/policy.schema.json",
+  "title": "Episteme policy report",
+  "description": "The gated plan written to .episteme/policy.json by synthesizing-the-policy. Structural shape only; the readiness gate (ready => every rests_on is a verified ledger entry) is enforced by tools/policy-check.py, not by this schema.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "status",
+    "readiness_rationale",
+    "evidence_audit",
+    "reachability_audit",
+    "candidate_steps",
+    "recommended_next_action"
+  ],
+  "properties": {
+    "status": {
+      "enum": ["not_ready", "probe_more", "policy_candidate", "ready"]
+    },
+    "readiness_rationale": { "type": "string", "minLength": 1 },
+    "evidence_audit": {
+      "type": "object",
+      "required": ["grounded", "tentative", "unknown"],
+      "properties": {
+        "grounded": { "type": "array", "items": { "type": "string" } },
+        "tentative": { "type": "array", "items": { "type": "string" } },
+        "unknown": { "type": "array", "items": { "type": "string" } },
+        "blocking_uncertainties": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "reachability_audit": {
+      "type": "object",
+      "required": ["target_reachable", "blocked_components", "missing_capability"],
+      "properties": {
+        "target_reachable": { "type": "boolean" },
+        "blocked_components": { "type": "array", "items": { "type": "string" } },
+        "missing_capability": { "type": ["string", "null"] }
+      }
+    },
+    "candidate_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "rests_on", "stop_or_remeasure_if"],
+        "properties": {
+          "action": { "type": "string", "minLength": 1 },
+          "expected_effect": { "type": "string" },
+          "rests_on": { "type": "array", "items": { "type": "string", "pattern": "^led-[0-9]{4,}$" } },
+          "stop_or_remeasure_if": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "recommended_next_action": {
+      "type": ["object", "null"],
+      "required": ["action", "rests_on"],
+      "properties": {
+        "action": { "type": "string", "minLength": 1 },
+        "why": { "type": "string" },
+        "rests_on": { "type": "array", "items": { "type": "string", "pattern": "^led-[0-9]{4,}$" } },
+        "stop_or_remeasure_if": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "previous_policy_retrospective": { "type": ["object", "null"] },
+    "discriminators_if_not_ready": { "type": "array" },
+    "confidence": { "enum": ["low", "medium", "high"] }
+  }
+}

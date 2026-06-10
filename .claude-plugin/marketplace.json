@@ -1,0 +1,14 @@
+{
+  "name": "episteme",
+  "description": "Episteme - the epistemic control layer for agentic software development.",
+  "owner": { "name": "Bruno Santos" },
+  "plugins": [
+    {
+      "name": "episteme",
+      "description": "Epistemic control layer: contract + typed ledger + gated policy + factual verifier + adversarial critic, as one mandatory loop.",
+      "version": "0.1.0",
+      "source": "./",
+      "author": { "name": "Bruno Santos" }
+    }
+  ]
+}

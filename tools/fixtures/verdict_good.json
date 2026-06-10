@@ -1,0 +1,12 @@
+{
+  "turn_index": 3,
+  "contract_id": "contract-verdict-check",
+  "criterion_id": "AC-1",
+  "oracle": "python3 tools/verdict-check.py tools/fixtures/verdict_good.json",
+
+  "kind": "passed",
+  "reason": "oracle ran green (exit 0) and the implementer predicted it would pass after wiring the schema loader - prediction matched",
+  "invalidates_hypothesis": false,
+  "progress_delta": 1,
+  "flags": ["ORACLE_PASSED"]
+}

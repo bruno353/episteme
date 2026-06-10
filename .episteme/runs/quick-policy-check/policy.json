@@ -1,0 +1,43 @@
+{
+  "feature": "contract-policy-check",
+  "created_at_turn": 1,
+  "status": "policy_candidate",
+  "readiness_rationale": "The structural pattern is proven: led-0002 (verified) confirms tools/ledger-check.py is a working template (argparse + jsonschema Draft202012Validator + per-line/structural checks). The plan mirrors it for policies and adds the readiness-gate cross-check from led-0003. Called policy_candidate, not ready: the readiness-gate behavior (AC-4/AC-5) rests partly on led-0003 which is still 'assumed' until its oracle goes green.",
+  "evidence_audit": {
+    "grounded": [
+      "led-0002 (verified): tools/ledger-check.py is the working template to mirror.",
+      "led-0001 (verified): contract-policy-check v1 active with 5 oracle-backed ACs."
+    ],
+    "tentative": [
+      "led-0003 (assumed): 'ready only if every rests_on maps to a verified entry' - a design rule, oracle AC-4 not green yet."
+    ],
+    "unknown": [],
+    "blocking_uncertainties": []
+  },
+  "reachability_audit": {
+    "target_reachable": true,
+    "blocked_components": [],
+    "missing_capability": null
+  },
+  "candidate_steps": [
+    {
+      "action": "Write schemas/policy.schema.json: require status(enum)/readiness_rationale/evidence_audit/reachability_audit/candidate_steps/recommended_next_action; candidate_steps items require action/rests_on/stop_or_remeasure_if; additionalProperties allowed.",
+      "expected_effect": "AC-2 (illegal status) and AC-3 (missing readiness_rationale) flip red->green once the validator loads this schema.",
+      "rests_on": ["led-0002"],
+      "stop_or_remeasure_if": ["a good fixture is wrongly rejected (schema too strict)"]
+    },
+    {
+      "action": "Write tools/policy-check.py mirroring ledger-check.py: load+validate schema, then if status=='ready' enforce the readiness gate (every rests_on id from candidate_steps + recommended_next_action must exist in --ledger with authority=='verified').",
+      "expected_effect": "AC-1 and AC-5 flip green (well-formed + ready-all-verified pass); AC-4 flips green (ready with an assumed rests_on rejected).",
+      "rests_on": ["led-0002", "led-0003"],
+      "stop_or_remeasure_if": ["AC-5 fails (gate too strict)", "AC-4 passes when it should reject (gate not enforced)"]
+    }
+  ],
+  "recommended_next_action": {
+    "action": "Write schemas/policy.schema.json first (smallest change that flips AC-2 and AC-3).",
+    "why": "Mirrors the proven ledger-check pattern (led-0002); lowest-risk first oracle flips.",
+    "rests_on": ["led-0002"],
+    "stop_or_remeasure_if": ["a good fixture is wrongly rejected"]
+  },
+  "confidence": "high"
+}

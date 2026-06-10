@@ -1,0 +1,2 @@
+{"id":"led-0101","type":"assumption","statement":"users will accept email-only signup for v1","source":"prd brainstorm","authority":"assumed","created_at_turn":0,"feature":"demo"}
+{"id":"led-0102","type":"finding","statement":"the existing mailer supports templated sends","source":"grep src/mail","authority":"verified","oracle_ref":"grep -rn sendTemplate src/mail","created_at_turn":0,"feature":"demo"}

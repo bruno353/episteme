@@ -1,0 +1,14 @@
+# Reference clones (read-only study material, not part of Episteme)
+reference/
+
+# Node
+node_modules/
+dist/
+*.log
+
+# OS
+.DS_Store
+
+# Env
+.env
+*.env

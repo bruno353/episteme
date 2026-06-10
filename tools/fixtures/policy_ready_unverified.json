@@ -1,0 +1,48 @@
+{
+  "feature": "contract-auth",
+  "created_at_turn": 18,
+  "status": "ready",
+  "readiness_rationale": "Claims ready: the argon2 hashing path and the rate-limit step are both believed solid, so AC-1 and AC-4 can ship together. (This fixture deliberately rests a ready step on led-0008, which is only assumed in the ledger - the readiness gate must reject it.)",
+  "evidence_audit": {
+    "grounded": [
+      "led-0007 (verified, npm test auth.spec.ts green): short-lived JWT + refresh chosen and a happy-path token round-trips."
+    ],
+    "tentative": [
+      "led-0008 (assumed, contract AC-4): refresh endpoint must be rate-limited - no oracle yet."
+    ],
+    "unknown": [],
+    "blocking_uncertainties": []
+  },
+  "reachability_audit": {
+    "target_reachable": true,
+    "blocked_components": [],
+    "missing_capability": null
+  },
+  "candidate_steps": [
+    {
+      "action": "Wire the existing argon2 hasher into the user registration path so AC-1 passes.",
+      "expected_effect": "AC-1 oracle flips red->green.",
+      "rests_on": ["led-0008"],
+      "stop_or_remeasure_if": [
+        "AC-1 oracle stays red after wiring"
+      ]
+    },
+    {
+      "action": "Add rate-limiting middleware to the refresh endpoint so AC-4 passes.",
+      "expected_effect": "AC-4 oracle flips red->green.",
+      "rests_on": ["led-0008"],
+      "stop_or_remeasure_if": [
+        "the rate-limit oracle stays red"
+      ]
+    }
+  ],
+  "recommended_next_action": {
+    "action": "Wire the existing argon2 hasher into the registration path.",
+    "why": "Cheapest verified-backed change that flips AC-1 green.",
+    "rests_on": ["led-0008"],
+    "stop_or_remeasure_if": [
+      "any green oracle regresses"
+    ]
+  },
+  "confidence": "high"
+}

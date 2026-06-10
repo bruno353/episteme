@@ -1,0 +1,13 @@
+{
+  "turn": 0,
+  "feature": "contract-<slug>",
+  "criterion": "AC-<n>",
+  "belief": "current state of the work, in one sentence (what is true right now about this code path)",
+  "hypothesis_id": "led-XXXX or null - the ledger entry this change tests/rests on",
+  "next_change": "the single code change about to be made, toward this one criterion",
+  "prediction": "what the cheap oracle will show AFTER the change - name the oracle + the observable transition (e.g. red->green, 41/41, exit 0)",
+  "expected_invariant": "the single testable assertion the change must make true - no 'should/correctly/works'",
+  "confidence": 0.0,
+  "deviated_from_policy": false,
+  "deviation_reason": null
+}

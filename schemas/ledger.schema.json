@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://episteme.dev/schemas/ledger.schema.json",
+  "title": "Episteme ledger entry",
+  "description": "One curated-memory entry. ledger.jsonl holds one of these objects per line (NDJSON). Source of truth shared by the v1 Python validator and the phase-2 Pi (TS) extension.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "type", "statement", "source", "authority", "created_at_turn"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^led-[0-9]{4,}$",
+      "description": "Stable id, e.g. led-0007. Append-only; never reused."
+    },
+    "type": {
+      "enum": ["decision", "constraint", "finding", "assumption", "contract_version"],
+      "description": "decision = a choice made; constraint = a rule that must hold; finding = an observed fact about the codebase; assumption = an unverified inference; contract_version = a snapshot pointer when contract.md changed."
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The fact/decision/constraint in one sentence."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Where it came from, e.g. 'contract AC-4', 'grep src/users', 'verdict turn 7', 'story-12 brainstorm'."
+    },
+    "authority": {
+      "enum": ["verified", "assumed"],
+      "description": "verified = an oracle or direct observation backs it; assumed = inferred, not yet verified. A hypothesis stays 'assumed' until an oracle flips it to 'verified'."
+    },
+    "oracle_ref": {
+      "type": ["string", "null"],
+      "description": "For verified entries: the command/test that backs it, e.g. 'npm test -- auth.spec.ts::rejects-expired-token'."
+    },
+    "created_at_turn": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Loop turn index when this entry was written (freshness)."
+    },
+    "supersedes": {
+      "type": ["string", "null"],
+      "pattern": "^led-[0-9]{4,}$",
+      "description": "Id of an earlier entry this one replaces (amend-not-overwrite). Null if none."
+    },
+    "evidence_for": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "evidence_against": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "feature": {
+      "type": ["string", "null"],
+      "description": "Which contract/feature this entry belongs to, e.g. 'contract-auth'. Null for project-wide entries."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "authority": { "const": "verified" } } },
+      "then": {
+        "anyOf": [
+          { "required": ["oracle_ref"], "properties": { "oracle_ref": { "type": "string", "minLength": 1 } } },
+          { "properties": { "evidence_for": { "minItems": 1 } }, "required": ["evidence_for"] }
+        ],
+        "description": "A 'verified' entry must cite either an oracle_ref or at least one evidence_for item. No verification without evidence."
+      }
+    }
+  ]
+}

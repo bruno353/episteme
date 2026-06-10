@@ -1,0 +1,56 @@
+{
+  "feature": "contract-auth",
+  "created_at_turn": 16,
+  "status": "policy_candidate",
+  "readiness_rationale": "AC-1 (hash with argon2) rests on a verified finding and can ship now, but AC-3 (reject expired tokens) is blocked: the token verifier reads the system clock directly, so the expiry path is untestable. Not ready until a time seam exists. One step is therefore policy_candidate, not ready.",
+  "evidence_audit": {
+    "grounded": [
+      "led-0009 (verified, grep src/users): UserService already hashes with argon2 - AC-1 oracle is reachable by wiring the existing hasher.",
+      "led-0007 (verified, npm test auth.spec.ts green): short-lived JWT + refresh chosen and a happy-path token round-trips."
+    ],
+    "tentative": [
+      "led-0008 (assumed, contract AC-4): refresh endpoint must be rate-limited - no oracle yet, do not build a ready step on it."
+    ],
+    "unknown": [
+      "Whether the token verifier can observe a controllable clock - the contract needs AC-3 but the ledger is silent on a time seam."
+    ],
+    "blocking_uncertainties": [
+      "No verified path to make AC-3's oracle (rejects-expired-token) reach the expiry branch."
+    ]
+  },
+  "reachability_audit": {
+    "target_reachable": false,
+    "blocked_components": [
+      "AC-3 (expired tokens rejected): oracle stays red; the verifier calls Date.now() directly so a test cannot advance time to trigger expiry. No verified control relieves this."
+    ],
+    "missing_capability": "An injectable time source (clock seam) behind the token verifier."
+  },
+  "candidate_steps": [
+    {
+      "action": "Introduce an injectable time source: add a now() dependency to the token verifier (default System clock, overridable in tests).",
+      "expected_effect": "No oracle flips yet; this unblocks AC-3. Existing green oracles stay green.",
+      "rests_on": ["led-0007"],
+      "stop_or_remeasure_if": [
+        "any currently-green oracle regresses",
+        "the verifier signature cannot accept an injected clock without a wider refactor"
+      ]
+    },
+    {
+      "action": "With the clock injected, write/adjust the AC-3 oracle to advance time past expiry and assert rejection, then implement the expiry branch.",
+      "expected_effect": "AC-3 oracle flips red->green.",
+      "rests_on": ["led-0009"],
+      "stop_or_remeasure_if": [
+        "AC-3 oracle stays red after the change"
+      ]
+    }
+  ],
+  "recommended_next_action": {
+    "action": "Introduce the injectable time source behind the token verifier (the missing capability from the reachability audit).",
+    "why": "AC-3 is provably blocked without a clock seam; acquiring this capability is the only path that makes the expiry oracle reachable.",
+    "rests_on": ["led-0007"],
+    "stop_or_remeasure_if": [
+      "any green oracle regresses"
+    ]
+  },
+  "confidence": "medium"
+}

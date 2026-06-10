@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://episteme.dev/schemas/verdict.schema.json",
+  "title": "Episteme verdict",
+  "description": "The factual result of one verify step, written to .episteme/verdict.json by verifying-against-contract. Enforces the typed-verdict spine: kind, reason, progress_delta, flags, invalidates_hypothesis are ALL required - a partial verdict is not a verdict.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["kind", "reason", "progress_delta", "flags", "invalidates_hypothesis"],
+  "properties": {
+    "kind": {
+      "enum": ["passed", "failed", "mismatch", "noop", "regression"],
+      "description": "passed = prediction held; mismatch = oracle moved but not as predicted; failed = oracle red; noop = no effect; regression = a previously-green oracle went red."
+    },
+    "reason": { "type": "string", "minLength": 1 },
+    "progress_delta": {
+      "type": "integer",
+      "description": "+1 when a contract criterion's oracle flips red->green, -1 when a green one regresses, 0 otherwise. Moved ONLY by the oracle, never by 'the prediction matched'."
+    },
+    "invalidates_hypothesis": { "type": "boolean" },
+    "flags": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["ORACLE_PASSED", "ORACLE_FAILED", "PREDICTION_MISMATCH", "REGRESSION", "STATE_REVISITED"] }
+    },
+    "turn_index": { "type": "integer", "minimum": 0 },
+    "contract_id": { "type": "string" },
+    "criterion_id": { "type": "string" },
+    "oracle": { "type": ["string", "null"] },
+    "criteria": { "type": "array" }
+  }
+}
